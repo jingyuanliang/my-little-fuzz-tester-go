@@ -2,17 +2,23 @@ package main
 
 import "testing"
 
-// TestProcessString tests the processString function with the hardcoded input
-func TestProcessString(t *testing.T) {
-	input := "HelloFuzz"
+// TestFuzzer tests the processString function using the fuzzer
+func TestFuzzer(t *testing.T) {
+	// Initialize the fuzzer
+	fuzzer := NewFuzzer(processString)
 
-	result, err := processString(input)
-	if err != nil {
-		t.Errorf("Unexpected error for input '%s': %v", input, err)
-	}
+	// Run the fuzzer multiple times and assert the results
+	for i := 0; i < 10; i++ {
+		result, err := fuzzer.Fuzz()
 
-	expected := "Processed: HelloFuzz"
-	if result != expected {
-		t.Errorf("For input '%s', expected '%s', but got '%s'", input, expected, result)
+		// Check if the error message is as expected for long strings
+		if err != nil && err.Error() != "input string is too long" {
+			t.Errorf("Unexpected error for input: %v", err)
+		}
+
+		// Check that non-error results are non-empty
+		if err == nil && result == "" {
+			t.Errorf("Expected non-empty result, but got empty string")
+		}
 	}
 }

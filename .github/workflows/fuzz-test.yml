@@ -1,0 +1,29 @@
+# Name of the workflow as it will appear in the GitHub Actions dashboard
+name: Fuzz Testing
+
+# Trigger the workflow
+on:
+  schedule:
+    # the workflow will run at the start of every hour
+    - cron: '0 * * * *'  
+
+jobs:
+  test-fuzz:
+    # The type of machine that the job will run on (Ubuntu in this case)
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v3  
+
+    # Step 2: Set up Go environment
+    - name: Set up Go
+      uses: actions/setup-go@v3  
+      with:
+        go-version: '1.23.2'
+
+    # Step 3: Run the fuzz tests
+    - name: Run Fuzz Tests
+      # runs all tests in the current directory and all subdirectories
+      run: go test ./...  

@@ -3,9 +3,13 @@ name: Fuzz Testing
 
 # Trigger the workflow
 on:
+  # Trigger the workflow using a cron schedule
   schedule:
     # the workflow will run at the start of every hour
     - cron: '0 * * * *'  
+  
+  # Allows manual triggering of the workflow
+  workflow_dispatch: 
 
 jobs:
   test-fuzz:

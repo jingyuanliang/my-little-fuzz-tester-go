@@ -30,4 +30,5 @@ jobs:
     # Step 3: Run the fuzz tests
     - name: Run Fuzz Tests
       # runs all tests in the current directory and all subdirectories
-      run: go test ./...  
+      # -v logs into the console
+      run: go test -v ./...  

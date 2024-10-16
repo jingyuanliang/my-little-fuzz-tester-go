@@ -44,17 +44,46 @@ jobs:
       with:
         go-version: '1.23.2'
 
-    # Step 3: Run the fuzz tests
+    # Step 3: Run the fuzz tests and store the report inside 'reports/'
     - name: Run tests for range ${{ matrix.range.start }}-${{ matrix.range.end }}
       run: |
-        go test -v -run '^TestFuzzer$' -args -start=${{ matrix.range.start }} -end=${{ matrix.range.end }}
+        mkdir -p reports  # Ensure the reports directory exists
+        go test -v -run '^TestFuzzer$' -args -start=${{ matrix.range.start }} -end=${{ matrix.range.end }} > reports/report-${{ matrix.range.start }}-to-${{ matrix.range.end }}.txt
 
-
-    # Step to upload the fuzz test report as an artifact
+    # Step 4: Upload the report as an artifact
     - name: Upload Fuzz Test Report
-      # Ensure this step runs even if the tests fail
-      if: always()  
-      uses: actions/upload-artifact@v4  # Upload the report as an artifact
+      if: always()  # Ensure this step runs even if tests fail
+      uses: actions/upload-artifact@v4
       with:
         name: test-report-${{ matrix.range.start }}-to-${{ matrix.range.end }}
-        path: fuzz_test_report.txt
+        path: reports/report-${{ matrix.range.start }}-to-${{ matrix.range.end }}.txt
+    
+  aggregate:
+    # This job waits for all 'test-fuzz' jobs to complete
+    needs: test-fuzz  # Waits for all the test jobs to complete
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Download all reports
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: ./reports  # Artifacts will be downloaded into this folder
+
+      # Step 2: Move all report files from subdirectories into 'reports'
+      - name: Move report files
+        run: |
+            find ./reports -type f -name '*.txt' -exec mv {} ./reports/ \;
+
+      # Step 3: Aggregate all reports into one file
+      - name: Aggregate reports
+        run: |
+            cat ./reports/*.txt > aggregated_report.txt
+            echo "Aggregated report generated."
+
+      # Step 4: Upload the aggregated report
+      - name: Upload aggregated report
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated-fuzz-report
+          path: aggregated_report.txt

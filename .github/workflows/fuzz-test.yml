@@ -7,6 +7,16 @@ on:
   schedule:
     # the workflow will run at the start of every hour
     - cron: '0 * * * *'  
+
+  # Run the workflow on pushes to the 'main' branch
+  push:
+    branches:
+      - main
+
+  # Run the workflow on pull requests targeting the 'main' branch
+  pull_request:
+    branches:
+      - main
   
   # Allows manual triggering of the workflow
   workflow_dispatch: 

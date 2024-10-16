@@ -16,7 +16,7 @@ This repository uses a **GitHub Actions workflow** to automate testing and repor
    - Each job uploads its results as artifacts.
 
 3. **Fixed Input Test**:
-   - Runs a separate test with a hardcoded input (`"Hello"`) to verify expected output.
+   - Runs a separate test with a hardcoded input to verify expected output.
    - The results of this test are also uploaded as an artifact.
 
 4. **Report Aggregation**:

@@ -106,3 +106,21 @@ func TestFuzzer(t *testing.T) {
 		t.Fatalf("Failed to write test report: %v", err)
 	}
 }
+
+// TestFixedInput is a test case with a hardcoded input string
+func TestFixedInput(t *testing.T) {
+	input := "Hello"                     // Adjusted input to fit within the expected length limit
+	expectedOutput := "Processed: Hello" // Define the expected output
+
+	result, err := processString(input)
+
+	if err != nil {
+		t.Errorf("Unexpected error for input '%s': %v", input, err)
+	} else {
+		if result != expectedOutput {
+			t.Errorf("Expected output '%s', but got '%s'", expectedOutput, result)
+		} else {
+			t.Logf("Success for input '%s': %s", input, result)
+		}
+	}
+}

@@ -22,16 +22,14 @@ on:
   workflow_dispatch: 
 
 jobs:
-  test-fuzz:
-    
+  # Fuzz test job with 2 runners
+  test-fuzz:  
     strategy:
       matrix:
         range:
-          - {start: 0, end: 5}
-          - {start: 5, end: 10}
-
-    # The type of machine that the job will run on (Ubuntu in this case)
-    runs-on: ubuntu-latest
+          - {start: 0, end: 5} # First range for the first runner
+          - {start: 5, end: 10} # Second range for the second runner
+    runs-on: ubuntu-latest # Each matrix run gets its own runner
 
     steps:
     # Step 1: Check out the code from the repository
@@ -57,10 +55,39 @@ jobs:
       with:
         name: test-report-${{ matrix.range.start }}-to-${{ matrix.range.end }}
         path: reports/report-${{ matrix.range.start }}-to-${{ matrix.range.end }}.txt
+
+  # Separate job for the fixed input test
+  test-fixed-input:
+    runs-on: ubuntu-latest  # Run on a separate runner
+
+    steps:
+      # Step 1: Check out the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up the Go environment
+      - name: Set up Go
+        uses: actions/setup-go@v3  
+        with:
+          go-version: '1.23.2'
+
+      # Step 3: Run the 'TestFixedInput' and save the output in 'reports/'
+      - name: Run TestFixedInput
+        run: |
+          mkdir -p reports  # Ensure 'reports/' directory exists
+          # Run the fixed input test and save the output to a report file
+          go test -v -run '^TestFixedInput$' > reports/fixed_input_report.txt
+
+      # Step 4: Upload the report for the fixed input test as an artifact
+      - name: Upload Fixed Input Test Report
+        if: always()  
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixed-input-test-report
+          path: reports/fixed_input_report.txt
     
   aggregate:
-    # This job waits for all 'test-fuzz' jobs to complete
-    needs: test-fuzz  # Waits for all the test jobs to complete
+    needs: [test-fuzz, test-fixed-input]  # Wait for both jobs to complete
     runs-on: ubuntu-latest
 
     steps:

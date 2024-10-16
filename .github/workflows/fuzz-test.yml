@@ -23,6 +23,13 @@ on:
 
 jobs:
   test-fuzz:
+    
+    strategy:
+      matrix:
+        range:
+          - {start: 0, end: 5}
+          - {start: 5, end: 10}
+
     # The type of machine that the job will run on (Ubuntu in this case)
     runs-on: ubuntu-latest
 
@@ -38,10 +45,10 @@ jobs:
         go-version: '1.23.2'
 
     # Step 3: Run the fuzz tests
-    - name: Run Fuzz Tests
-      # runs all tests in the current directory and all subdirectories
-      # -v logs into the console
-      run: go test -v ./...  
+    - name: Run tests for range ${{ matrix.range.start }}-${{ matrix.range.end }}
+      run: |
+        go test -v -run '^TestFuzzer$' -args -start=${{ matrix.range.start }} -end=${{ matrix.range.end }}
+
 
     # Step to upload the fuzz test report as an artifact
     - name: Upload Fuzz Test Report
@@ -49,5 +56,5 @@ jobs:
       if: always()  
       uses: actions/upload-artifact@v4  # Upload the report as an artifact
       with:
-        name: fuzz-test-report  # Name of the artifact
-        path: fuzz_test_report.txt  # Path to the report file
+        name: test-report-${{ matrix.range.start }}-to-${{ matrix.range.end }}
+        path: fuzz_test_report.txt

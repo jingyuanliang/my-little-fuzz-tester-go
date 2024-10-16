@@ -32,3 +32,12 @@ jobs:
       # runs all tests in the current directory and all subdirectories
       # -v logs into the console
       run: go test -v ./...  
+
+    # Step to upload the fuzz test report as an artifact
+    - name: Upload Fuzz Test Report
+      # Ensure this step runs even if the tests fail
+      if: always()  
+      uses: actions/upload-artifact@v3  # Upload the report as an artifact
+      with:
+        name: fuzz-test-report  # Name of the artifact
+        path: fuzz_test_report.txt  # Path to the report file

@@ -20,14 +20,11 @@ func WriteTestReport(report string) error {
 	return err
 }
 
-// TestFuzzer tests the processString function using the fuzzer
-func TestFuzzer(t *testing.T) {
-	// Initialize the fuzzer and prepare to log results
-	fuzzer := NewFuzzer(processString)
+// RunFuzzTests runs the fuzz tests for a given range of tests and returns the report
+func RunFuzzTests(t *testing.T, start, end int, fuzzer *Fuzzer) string {
 	report := "Fuzz Test Report:\n"
 
-	// Run the fuzzer multiple times and assert the results
-	for i := 0; i < 10; i++ {
+	for i := start; i < end; i++ {
 		result, err := fuzzer.Fuzz()
 
 		if err != nil && err.Error() == "input string is too long" {
@@ -45,7 +42,21 @@ func TestFuzzer(t *testing.T) {
 		}
 	}
 
-	// Write the report to a file
+	return report
+}
+
+// TestFuzzer tests the processString function using the fuzzer
+func TestFuzzer(t *testing.T) {
+	// Define the test range for this runner
+	totalTests := 10
+
+	// Initialize the fuzzer
+	fuzzer := NewFuzzer(processString)
+
+	// Run the fuzz tests
+	report := RunFuzzTests(t, 0, totalTests, fuzzer)
+
+	// Write the test report to a file
 	err := WriteTestReport(report)
 	if err != nil {
 		t.Fatalf("Failed to write test report: %v", err)

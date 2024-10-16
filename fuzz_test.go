@@ -1,10 +1,27 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
+	"sync"
 	"testing"
 )
+
+var start, end int // Global variables for range
+
+// TestMain is the entry point for all tests and parses custom flags.
+func TestMain(m *testing.M) {
+	// Define custom flags for start and end
+	flag.IntVar(&start, "start", 0, "Start index for the test range")
+	flag.IntVar(&end, "end", 10, "End index for the test range")
+
+	// Parse the flags
+	flag.Parse()
+
+	// Run the tests
+	os.Exit(m.Run())
+}
 
 // WriteTestReport writes the result of fuzz tests to a report file
 func WriteTestReport(report string) error {
@@ -45,19 +62,46 @@ func RunFuzzTests(t *testing.T, start, end int, fuzzer *Fuzzer) string {
 	return report
 }
 
+// RunTestRange runs a range of fuzz tests in parallel and communicates results back via a channel
+func RunFuzzTestRange(t *testing.T, start, end int, fuzzer *Fuzzer, wg *sync.WaitGroup, resultChan chan<- string) {
+	defer wg.Done() // Signal that this goroutine is done when the function returns
+
+	// Execute the tests for the given range
+	report := RunFuzzTests(t, start, end, fuzzer)
+
+	// Send the generated report back to the main thread via the result channel
+	resultChan <- report
+}
+
 // TestFuzzer tests the processString function using the fuzzer
 func TestFuzzer(t *testing.T) {
-	// Define the test range for this runner
-	totalTests := 10
-
 	// Initialize the fuzzer
 	fuzzer := NewFuzzer(processString)
 
-	// Run the fuzz tests
-	report := RunFuzzTests(t, 0, totalTests, fuzzer)
+	// Create a WaitGroup to wait for all goroutines to finish
+	var wg sync.WaitGroup
+
+	// Create a channel to gather reports from all parallel runs
+	reportChan := make(chan string, 2)
+
+	// Run the tests for the specified range
+	wg.Add(1)
+	go RunFuzzTestRange(t, start, end, fuzzer, &wg, reportChan)
+
+	// Wait for all parallel runs to finish
+	wg.Wait()
+
+	// Close the report channel
+	close(reportChan)
+
+	// Aggregate the reports
+	finalReport := ""
+	for report := range reportChan {
+		finalReport += report
+	}
 
 	// Write the test report to a file
-	err := WriteTestReport(report)
+	err := WriteTestReport(finalReport)
 	if err != nil {
 		t.Fatalf("Failed to write test report: %v", err)
 	}

@@ -37,7 +37,7 @@ jobs:
     - name: Upload Fuzz Test Report
       # Ensure this step runs even if the tests fail
       if: always()  
-      uses: actions/upload-artifact@v3  # Upload the report as an artifact
+      uses: actions/upload-artifact@v4  # Upload the report as an artifact
       with:
         name: fuzz-test-report  # Name of the artifact
         path: fuzz_test_report.txt  # Path to the report file

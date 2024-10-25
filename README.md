@@ -54,20 +54,34 @@ This repository uses a **GitHub Actions workflow** to automate testing and repor
    Modify the `.github/workflows/fuzz-testing.yml` file to change test parameters, adjust the test ranges, or customize how tests are triggered. You can also extend the workflow to run tests on multiple Go versions or environments.
 
 ## **How to Run**
-1. **Install Go**:  
-    Ensure that you have Go installed on your machine. If not, you can download and install it from the [Official Go Website](https://go.dev/dl/).
 
-2. **Install TPM Libraries**:  
-    This program relies on Google's TPM2 implementation for Go. You need to install the necessary libraries by running the following commands:
-    Install the main TPM2 library:
-      go get github.com/google/go-tpm/tpm2
+### **Run the Program Using Docker**
 
-    Install the Windows transport package (for accessing TPM on Windows):
-      go get github.com/google/go-tpm/tpm2/transport
+#### **Why Use Docker?**
+Using Docker ensures that you **don't need to install dependencies like OpenSSL** or TPM-related libraries on your local machine. Docker containers provide a **consistent and isolated environment**, making it easier to run the program without worrying about dependency conflicts or differences across platforms (like macOS, Windows, or Linux). This approach avoids the complexity of manually managing dependencies, such as:
+- OpenSSL libraries for cryptographic operations.
+- Build tools like `gcc` for compiling certain dependencies.
+- TPM libraries for interacting with the TPM simulator or hardware.
 
-3. **Run the Program**:  
-    Navigate to the directory that contains your main.go file in the terminal and run the Go program with the following command:
-      go run main.go
+> **Note:** If you prefer running the program locally, you would need to install Go and TPM libraries manually. However, using Docker is the recommended and easiest way to avoid dependency issues.
+
+With Docker, everything the program needs is **packaged into a container**, ensuring anyone can run it with a single command, regardless of the underlying OS or environment.
+
+1. **Build the Docker Image:**
+   ```bash
+   docker build -t my-little-fuzz-tester-go .
+   ```
+
+2. **Run the Docker Container:**
+   ```bash
+   docker run --rm my-little-fuzz-tester-go
+   ```
+
+3. **Expected Output:**
+   You should see something like:
+   ```bash
+   Random Bytes: eaf5afde6fccabcd1234567890abcdef
+   ```
 
 ## **Contributing**
 Contributions are welcome! If you find a bug or have an idea for an improvement, feel free to open an issue or submit a pull request.

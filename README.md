@@ -53,6 +53,22 @@ This repository uses a **GitHub Actions workflow** to automate testing and repor
 3. **Update Workflow**:  
    Modify the `.github/workflows/fuzz-testing.yml` file to change test parameters, adjust the test ranges, or customize how tests are triggered. You can also extend the workflow to run tests on multiple Go versions or environments.
 
+## **How to Run**
+1. **Install Go**:  
+    Ensure that you have Go installed on your machine. If not, you can download and install it from the [Official Go Website](https://go.dev/dl/).
+
+2. **Install TPM Libraries**:  
+    This program relies on Google's TPM2 implementation for Go. You need to install the necessary libraries by running the following commands:
+    Install the main TPM2 library:
+      go get github.com/google/go-tpm/tpm2
+
+    Install the Windows transport package (for accessing TPM on Windows):
+      go get github.com/google/go-tpm/tpm2/transport
+
+3. **Run the Program**:  
+    Navigate to the directory that contains your main.go file in the terminal and run the Go program with the following command:
+      go run main.go
+
 ## **Contributing**
 Contributions are welcome! If you find a bug or have an idea for an improvement, feel free to open an issue or submit a pull request.
 

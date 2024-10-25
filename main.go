@@ -5,24 +5,28 @@ import (
 	"log"
 
 	"github.com/google/go-tpm/tpm2"
-	"github.com/google/go-tpm/tpm2/transport" // Import the Windows transport package
+	"github.com/google/go-tpm/tpm2/transport/simulator"
 )
 
 func main() {
-	fmt.Println("This represents the main program.")
-
-	// Open the TPM device using the Windows transport
-	tpm, err := transport.OpenTPM() // Use the appropriate OpenTPM function for Windows
+	// Open the TPM simulator
+	tpm, err := simulator.OpenSimulator()
 	if err != nil {
-		log.Fatalf("Failed to open TPM device: %v", err)
+		log.Fatalf("Could not connect to TPM simulator: %v", err)
 	}
-	defer tpm.Close() // Ensure the TPM is closed properly when done
+	defer tpm.Close()
 
-	// Define the number of bytes to request
-	const bytesRequested = 16
+	// Request 16 random bytes from the TPM
+	grc := tpm2.GetRandom{
+		BytesRequested: 16,
+	}
 
-	// Create a GetRandom command
-	getRandomCmd := tpm2.GetRandom{BytesRequested: bytesRequested}
+	// Execute the command and retrieve the bytes
+	randomBytes, err := grc.Execute(tpm)
+	if err != nil {
+		log.Fatalf("GetRandom failed: %v", err)
+	}
 
-	fmt.Printf("GetRandom command: %+v\n", getRandomCmd)
+	// Print the random bytes as a hex string
+	fmt.Printf("Random Bytes: %x\n", randomBytes)
 }

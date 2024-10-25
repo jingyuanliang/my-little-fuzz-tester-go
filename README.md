@@ -63,20 +63,25 @@ Using Docker ensures that you **don't need to install dependencies like OpenSSL*
 - Build tools like `gcc` for compiling certain dependencies.
 - TPM libraries for interacting with the TPM simulator or hardware.
 
+> **Note:** If you prefer running the program locally, you would need to install Go and TPM libraries manually. However, using Docker is the recommended and easiest way to avoid dependency issues.
+
 With Docker, everything the program needs is **packaged into a container**, ensuring anyone can run it with a single command, regardless of the underlying OS or environment.
 
 1. **Build the Docker Image:**
-   bash
+   ```bash
    docker build -t my-little-fuzz-tester-go .
+   ```
 
 2. **Run the Docker Container:**
-   bash
+   ```bash
    docker run --rm my-little-fuzz-tester-go
+   ```
 
 3. **Expected Output:**
    You should see something like:
-   bash
+   ```bash
    Random Bytes: eaf5afde6fccabcd1234567890abcdef
+   ```
 
 ## **Contributing**
 Contributions are welcome! If you find a bug or have an idea for an improvement, feel free to open an issue or submit a pull request.
